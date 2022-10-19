@@ -7,4 +7,4 @@ Here, you can create a new account, update information of an existing account, v
 
 Overall, with this program, you can perform basic banking activities like a real bank. This is a console application without graphics, ran with compiled code with a gcc compiler.
 
-### [Project Link]()
+### [Project Link](https://www.codewithc.com/mini-project-in-c-bank-management-system/)
