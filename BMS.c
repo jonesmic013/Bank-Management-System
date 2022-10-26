@@ -17,10 +17,14 @@ struct Account
     char accountType[9]; // "checking" or "savings"
     double balance; // account balance
 };
+struct Account* accounts;
+int numAccounts;
 
 // Function Declarations
 void printMainHeader();
-int promptInputNum(char* options, int numOptions, char* header);
+int promptInputNum(char*, int, char*);
+int usernameExists(char[21]);
+int accountNumExists(char[7]);
 
 void createAccount();
 void signIn();
@@ -32,9 +36,10 @@ int main (void)
 {
     // Local Declarations
     int input;
-    struct Account* accounts;
 
     // Statements
+    numAccounts = 0;
+    accounts = malloc(numAccounts * sizeof(struct Account));
     char* mainMenuOptions = {"1. Create New Account\n2. Sign-in\n3. Close Account\n4. View customer list\n5. Exit"};
     // Loop the main menu prompt
     do
@@ -91,22 +96,56 @@ int promptInputNum(char* options, int numOptions, char* header)
     return input;
 }
 
+// Return if the given username exists (is taken)
+int usernameExists(char username[21])
+{
+    for (int i = 0; i < numAccounts; i++)
+    {
+        if (!strcmp(accounts[i].username, username)) // 0 means they match for some reason
+        {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+// Return if the given account number exists (to prevent duplicates)
+int accountNumExists(char number[7])
+{
+    for (int i = 0; i < numAccounts; i++)
+    {
+        if (!strcmp(accounts[i].accountNum, number)) // 0 means they match for some reason
+        {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 // Loop the create account menu
 void createAccount()
 {
     // Local Declarations
     struct Account newAccount;
-    // the user will be asked for username/pw/dob/phone/address
 
     // Statements
+
     // Initialize each member of the newAccount struct
     printMainHeader();
     printf("--- Create Account ---");
 
     // Choose for username
-    // TODO: check for duplicate usernames on account creation
-    printf("\nEnter a username (20 characters max) -> ");
-    scanf("%19s", newAccount.username);
+    do
+    {
+        printf("Enter a username (20 characters max) -> ");
+        scanf("%19s", newAccount.username);
+        if (usernameExists(newAccount.username))
+        {
+            printf("This username is taken!\n");
+        }
+    } while (usernameExists(newAccount.username));
 
     // Choose for password
     printf("Enter a password (20 characters max) -> ");
@@ -143,4 +182,9 @@ void createAccount()
 
     // Initialize balance
     newAccount.balance = 0.0;
+
+    // Add this new account the the array of accounts
+    numAccounts++;
+    accounts = realloc(accounts, numAccounts * sizeof(struct Account));
+    accounts[numAccounts - 1] = newAccount;
 }
