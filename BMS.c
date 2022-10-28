@@ -55,7 +55,7 @@ int main (void)
                     break;
             case 3: //closeAccount();
                     break;
-            case 4: //viewCustomerList();
+            case 4: viewCustomerList();
                     break;
         }
     } while (input != 5); // Option 5 - Exit: Exits the program
@@ -154,7 +154,6 @@ void createAccount()
     struct Account newAccount;
 
     // Statements
-
     // Initialize each member of the newAccount struct
     printMainHeader();
     printf("--- Create Account ---");
@@ -234,4 +233,25 @@ void createAccount()
     numAccounts++;
     accounts = realloc(accounts, numAccounts * sizeof(struct Account));
     accounts[numAccounts - 1] = newAccount;
+}
+
+// Show a list of all customers
+// This one seemed a bit odd to me, since my banking app(s)
+// don't do this... so I will just have it print a list of
+// registered users' usernames.
+void viewCustomerList()
+{
+    // Statements
+    printMainHeader();
+    printf("--- Registered Users ---\n");
+    // No accounts exist yet
+    if (numAccounts < 1)
+    {
+        printf("No accounts registered yet.\n");
+    }
+    // Otherwise print out all usernames
+    for (int i = 0; i < numAccounts; i++)
+    {
+        printf("%d. %s\n", i + 1, accounts[i].username);
+    }
 }
