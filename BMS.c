@@ -25,8 +25,10 @@ int numAccounts;
 void printMainHeader();
 int promptInputNum(char*, int, char*);
 int usernameExists(char[21]);
+int correctPassword(char[21], char[21]);
 int accountNumExists(char[7]);
 int isDigitString(char*, int);
+int indexOfAccount(char[21]);
 
 void createAccount();
 void signIn();
@@ -53,7 +55,7 @@ int main (void)
                     break;
             case 2: //signIn();
                     break;
-            case 3: //closeAccount();
+            case 3: closeAccount();
                     break;
             case 4: viewCustomerList();
                     break;
@@ -113,6 +115,20 @@ int usernameExists(char username[21])
     return 0;
 }
 
+// Return if the given password is correct for the given username
+int correctPassword(char username[21], char password[21])
+{
+    // Statements
+    for (int i = 0; i < numAccounts; i++)
+    {
+        if (!strcmp(accounts[i].username, username) && !strcmp(accounts[i].password, password)) // 0 means they match for some reason
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 // Return if the given account number exists (to prevent duplicates)
 int accountNumExists(char number[7])
 {
@@ -147,6 +163,20 @@ int isDigitString(char* str, int digits)
     return 1;
 }
 
+// Return the array index of the given account (username)
+int indexOfAccount(char username[21])
+{
+    // Statements
+    for (int i = 0; i < numAccounts; i++)
+    {
+        if (!strcmp(accounts[i].username, username)) // 0 means they match for some reason
+        {
+            return i;
+        }
+    }
+    return -1; // Should never happen, since this function will only call when the account does exist
+}
+
 // Handle the create account menu
 void createAccount()
 {
@@ -156,7 +186,7 @@ void createAccount()
     // Statements
     // Initialize each member of the newAccount struct
     printMainHeader();
-    printf("--- Create Account ---");
+    printf("--- Create Account ---\n");
 
     // Choose for username
     do
@@ -233,6 +263,73 @@ void createAccount()
     numAccounts++;
     accounts = realloc(accounts, numAccounts * sizeof(struct Account));
     accounts[numAccounts - 1] = newAccount;
+}
+
+// Handle the close account menu
+void closeAccount()
+{
+
+    // Local Declarations
+    char username[21];
+    char password[21];
+    char accountNum[7];
+    int input;
+    int index;
+    struct Account temp;
+
+    // Statements
+    printMainHeader();
+    printf("--- Close Account ---\n");
+
+    // Quick check for no existing account to even close
+    if (numAccounts < 1)
+    {
+        printf("No accounts registered yet.\n");
+        return;
+    }
+
+    // TODO: Have user enter account number as well to confirm identity
+    // ^ This is waiting on the View Account Info menu, so you can find your account number
+
+    // Ask for username
+    do
+    {
+        printf("Enter username -> ");
+        scanf("%19s", username);
+
+        if (!usernameExists(username))
+        {
+            printf("Username does not exist!\n");
+        }
+    } while (!usernameExists(username));
+
+    // Ask for password
+    do
+    {
+        printf("Enter password -> ");
+        scanf("%19s", password);
+
+        if (!correctPassword(username, password))
+        {
+            printf("Incorrect password!\n");
+        }
+    } while (!correctPassword(username, password));
+
+    // Confirm that the user would like to close their account
+    char* confirmCloseOptions = {"1. Yes\n2. No"};
+    input = promptInputNum(confirmCloseOptions, 2, "--- Are you sure you wish to close your account? ---");
+    if (input == 1)
+    {
+        // Remove account from array
+        index = indexOfAccount(username);
+        for (int i = index; i < numAccounts - 1; i++)
+        {
+            accounts[i] = accounts[i + 1];
+        }
+        numAccounts--;
+        accounts = realloc(accounts, numAccounts * sizeof(struct Account));
+        printf("Account successfully closed.\n");
+    }
 }
 
 // Show a list of all customers
