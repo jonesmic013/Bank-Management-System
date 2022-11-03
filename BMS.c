@@ -42,6 +42,9 @@ struct Account changePassword(struct Account);
 struct Account deposit(struct Account);
 struct Account withdraw(struct Account);
 
+void saveToFile();
+void readFile();
+
 // Main function
 int main (void)
 {
@@ -51,6 +54,7 @@ int main (void)
     // Statements
     numAccounts = 0;
     accounts = malloc(numAccounts * sizeof(struct Account));
+    readFile();
     char* mainMenuOptions = "1. Create New Account\n2. Sign-in\n3. Close Account\n4. View customer list\n5. Exit";
     // Loop the main menu
     do
@@ -112,6 +116,7 @@ int promptInputNum(char* options, int numOptions, char* header)
 int usernameExists(char username[21])
 {
     // Statements
+    readFile();
     for (int i = 0; i < numAccounts; i++)
     {
         if (!strcmp(accounts[i].username, username)) // 0 means they match for some reason
@@ -126,6 +131,7 @@ int usernameExists(char username[21])
 int correctPassword(char username[21], char password[21])
 {
     // Statements
+    readFile();
     for (int i = 0; i < numAccounts; i++)
     {
         if (!strcmp(accounts[i].username, username) && !strcmp(accounts[i].password, password)) // 0 means they match for some reason
@@ -140,6 +146,7 @@ int correctPassword(char username[21], char password[21])
 int accountNumExists(char number[7])
 {
     // Statements
+    readFile();
     for (int i = 0; i < numAccounts; i++)
     {
         if (!strcmp(accounts[i].accountNum, number)) // 0 means they match for some reason
@@ -174,6 +181,7 @@ int isDigitString(char* str, int digits)
 int indexOfAccount(char username[21])
 {
     // Statements
+    readFile();
     for (int i = 0; i < numAccounts; i++)
     {
         if (!strcmp(accounts[i].username, username)) // 0 means they match for some reason
@@ -190,6 +198,7 @@ int indexOfAccount(char username[21])
 struct Account getAccount(char username[21])
 {
     // Statements
+    readFile();
     for (int i = 0; i < numAccounts; i++)
     {
         if (!strcmp(accounts[i].username, username)) // 0 means they match for some reason
@@ -285,6 +294,7 @@ void createAccount()
     numAccounts++;
     accounts = realloc(accounts, numAccounts * sizeof(struct Account));
     accounts[numAccounts - 1] = newAccount;
+    saveToFile();
 }
 
 // Handle the sign in menu
@@ -395,6 +405,7 @@ void closeAccount()
         }
         numAccounts--;
         accounts = realloc(accounts, numAccounts * sizeof(struct Account));
+        saveToFile();
         printf("Account successfully closed.\n");
     }
 }
@@ -501,6 +512,7 @@ struct Account changePassword(struct Account account)
     // Return newly changed account to keep messing with in the account menu
     strcpy(account.password, password);
     accounts[indexOfAccount(account.username)] = account;
+    saveToFile();
     return account;
 }
 
@@ -531,6 +543,7 @@ struct Account deposit(struct Account account)
 
     // Return newly changed account to keep messing with in the account menu
     accounts[indexOfAccount(account.username)] = account;
+    saveToFile();
     return account;
 }
 
@@ -565,5 +578,43 @@ struct Account withdraw(struct Account account)
 
     // Return newly changed account to keep messing with in the account menu
     accounts[indexOfAccount(account.username)] = account;
+    saveToFile();
     return account;
+}
+
+// Write accounts data to the data file
+void saveToFile()
+{
+    // Opon the binary file for writing
+    FILE* fptr;
+    fptr = fopen("accounts.bin","wb");
+
+    // Write data to the file
+    fwrite(&numAccounts, sizeof(numAccounts), 1, fptr);
+    for (int i = 0; i < numAccounts; i++)
+    {
+        fwrite(&accounts[i], sizeof(struct Account), 1, fptr);
+    }
+
+    // Lastly close the file
+    fclose(fptr);
+}
+
+// Read accounts data from the data file
+void readFile()
+{
+    // Opon the binary file for reading
+    FILE* fptr;
+    fptr = fopen("accounts.bin","rb");
+
+    // Read data from the file
+    fread(&numAccounts, sizeof(numAccounts), 1, fptr);
+    accounts = realloc(accounts, numAccounts * sizeof(struct Account));
+    for (int i = 0; i < numAccounts; i++)
+    {
+        fread(&accounts[i], sizeof(struct Account), 1, fptr);
+    }
+
+    // Lastly close the file
+    fclose(fptr);
 }
