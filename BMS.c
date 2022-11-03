@@ -39,6 +39,8 @@ void viewCustomerList();
 void accountMenu(struct Account);
 void printAccountInfo(struct Account);
 struct Account changePassword(struct Account);
+struct Account deposit(struct Account);
+struct Account withdraw(struct Account);
 
 // Main function
 int main (void)
@@ -439,9 +441,9 @@ void accountMenu(struct Account account)
                     break;
             case 2: account = changePassword(account);
                     break;
-            case 3: //
+            case 3: account = deposit(account);
                     break;
-            case 4: //
+            case 4: account = withdraw(account);
                     break;
         }
     } while (input != 5); // Option 5 - Sign-out: exits this menu effectively signing out
@@ -454,7 +456,7 @@ void printAccountInfo(struct Account account)
     // Statements
     printMainHeader();
     printf("ACCOUNT TYPE: %s\n", account.accountType);
-    printf("BALANCE: %ld\n", account.balance);
+    printf("BALANCE: %.2lf\n", account.balance);
     printf("\nUsername: %s\n", account.username);
     printf("Password: %s\n", account.password);
     printf("Account Number: %s\n", account.accountNum);
@@ -495,9 +497,73 @@ struct Account changePassword(struct Account account)
             printf("Must be a different password!\n"); 
         }
     } while (!strcmp(password, account.password)); // 0 means they match for some reason
+
+    // Return newly changed account to keep messing with in the account menu
     strcpy(account.password, password);
     accounts[indexOfAccount(account.username)] = account;
+    return account;
+}
 
-    // Return this newly changed account to keep messing with in the account menu
+// Deposit money into your account
+struct Account deposit(struct Account account)
+{
+    // Local Declarations
+    double amount;
+
+    // Statements
+    printMainHeader();
+    printf("--- Deposit ---\n");
+    // Ask for deposit amount
+    do
+    {
+        printf("Current Balance: %.2lf\n", account.balance);
+        printf("Enter deposit amount -> ");
+        scanf("%lf", &amount);
+
+        if (amount < 0.0)
+        {
+            printf("Must enter a positive value!\n");
+        }
+    } while (amount < 0.0);
+
+    account.balance += amount;
+    printf("New Balance: %.2lf\n", account.balance);
+
+    // Return newly changed account to keep messing with in the account menu
+    accounts[indexOfAccount(account.username)] = account;
+    return account;
+}
+
+// Withdraw money from your account
+struct Account withdraw(struct Account account)
+{
+    // Local Declarations
+    double amount;
+
+    // Statements
+    printMainHeader();
+    printf("--- Withdraw ---\n");
+    // Ask for withdraw amount
+    do
+    {
+        printf("Current Balance: %.2lf\n", account.balance);
+        printf("Enter withdraw amount -> ");
+        scanf("%lf", &amount);
+
+        if (amount < 0.0)
+        {
+            printf("Must enter a positive value!\n");
+        }
+        if (amount > account.balance)
+        {
+            printf("Not enough funds for withdraw!\n");
+        }
+    } while (amount < 0.0 || amount > account.balance);
+
+    account.balance -= amount;
+    printf("New Balance: %.2lf\n", account.balance);
+
+    // Return newly changed account to keep messing with in the account menu
+    accounts[indexOfAccount(account.username)] = account;
     return account;
 }
