@@ -26,6 +26,7 @@ void printMainHeader();
 int promptInputNum(char*, int, char*);
 int usernameExists(char[21]);
 int correctPassword(char[21], char[21]);
+int correctAccountNum(char[21], char[7]);
 int accountNumExists(char[7]);
 int isDigitString(char*, int);
 int indexOfAccount(char[21]);
@@ -135,6 +136,21 @@ int correctPassword(char username[21], char password[21])
     for (int i = 0; i < numAccounts; i++)
     {
         if (!strcmp(accounts[i].username, username) && !strcmp(accounts[i].password, password)) // 0 means they match for some reason
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Return if the given account number is correct for the given username
+int correctAccountNum(char username[21], char accountNum[7])
+{
+    // Statements
+    readFile();
+    for (int i = 0; i < numAccounts; i++)
+    {
+        if (!strcmp(accounts[i].username, username) && !strcmp(accounts[i].accountNum, accountNum)) // 0 means they match for some reason
         {
             return 1;
         }
@@ -365,9 +381,6 @@ void closeAccount()
         return;
     }
 
-    // TODO: Have user enter account number as well to confirm identity
-    // ^ This is waiting on the View Account Info menu, so you can find your account number
-
     // Ask for username
     do
     {
@@ -391,6 +404,18 @@ void closeAccount()
             printf("Incorrect password!\n");
         }
     } while (!correctPassword(username, password));
+
+    // Ask for account number
+    do
+    {
+        printf("Enter account number -> ");
+        scanf("%6s", accountNum);
+
+        if (!correctAccountNum(username, accountNum))
+        {
+            printf("Invalid account number!\n");
+        }
+    } while (!correctAccountNum(username, accountNum));
 
     // Confirm that the user would like to close their account
     char* confirmCloseOptions = {"1. Yes\n2. No"};
@@ -417,6 +442,7 @@ void closeAccount()
 void viewCustomerList()
 {
     // Statements
+    readFile();
     printMainHeader();
     printf("--- Registered Users ---\n");
     // No accounts exist yet
@@ -463,7 +489,6 @@ void accountMenu(struct Account account)
 // Print out all account information, including current balance
 void printAccountInfo(struct Account account)
 {
-    // TODO: Have dob/phoneNum print out with their own cool formats
     // Statements
     printMainHeader();
     printf("ACCOUNT TYPE: %s\n", account.accountType);
@@ -471,9 +496,25 @@ void printAccountInfo(struct Account account)
     printf("\nUsername: %s\n", account.username);
     printf("Password: %s\n", account.password);
     printf("Account Number: %s\n", account.accountNum);
-    printf("Date-of-Birth: %s\n", account.dob);
-    printf("Phone Number: %s\n", account.phoneNum);
-    printf("Address: %s\n", account.address);
+    printf("Date-of-Birth: ");
+    for (int i = 0; i < strlen(account.dob); i++)
+    {
+        printf("%c", account.dob[i]);
+        if (i == 1 || i == 3)
+        {
+            printf("/");
+        }
+    }
+    printf("\nPhone Number: ");
+    for (int i = 0; i < strlen(account.phoneNum); i++)
+    {
+        printf("%c", account.phoneNum[i]);
+        if (i == 2 || i == 5)
+        {
+            printf("-");
+        }
+    }
+    printf("\nAddress: %s\n", account.address);
 }
 
 // Change password menu, pretty standard for anything with accounts
