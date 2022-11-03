@@ -38,6 +38,7 @@ void viewCustomerList();
 
 void accountMenu(struct Account);
 void printAccountInfo(struct Account);
+struct Account changePassword(struct Account);
 
 // Main function
 int main (void)
@@ -269,7 +270,7 @@ void createAccount()
         printf("Enter account type (\"checking\" or \"savings\") -> ");
         scanf("%8s", newAccount.accountType);
 
-        if (strcmp(newAccount.accountType, "checking") && strcmp(newAccount.accountType, "savings"))
+        if (strcmp(newAccount.accountType, "checking") && strcmp(newAccount.accountType, "savings")) // 0 means they match for some reason
         {
             printf("Invalid option!\n");
         }
@@ -436,7 +437,7 @@ void accountMenu(struct Account account)
         {
             case 1: printAccountInfo(account);
                     break;
-            case 2: //
+            case 2: account = changePassword(account);
                     break;
             case 3: //
                     break;
@@ -460,4 +461,43 @@ void printAccountInfo(struct Account account)
     printf("Date-of-Birth: %s\n", account.dob);
     printf("Phone Number: %s\n", account.phoneNum);
     printf("Address: %s\n", account.address);
+}
+
+// Change password menu, pretty standard for anything with accounts
+struct Account changePassword(struct Account account)
+{
+    // Local Declarations
+    char password[21];
+
+    // Statements
+    printMainHeader();
+    printf("--- Change Password ---\n");
+    // Enter current password
+    do
+    {
+        printf("Enter current password -> ");
+        scanf("%19s", password);
+
+        if (strcmp(password, account.password)) // 0 means they match for some reason
+        {
+            printf("Incorrect password!\n"); 
+        }
+    } while (strcmp(password, account.password)); // 0 means they match for some reason
+
+    // Enter new password
+    do
+    {
+        printf("Enter new password -> ");
+        scanf("%19s", password);
+
+        if (!strcmp(password, account.password)) // 0 means they match for some reason
+        {
+            printf("Must be a different password!\n"); 
+        }
+    } while (!strcmp(password, account.password)); // 0 means they match for some reason
+    strcpy(account.password, password);
+    accounts[indexOfAccount(account.username)] = account;
+
+    // Return this newly changed account to keep messing with in the account menu
+    return account;
 }
