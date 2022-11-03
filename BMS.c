@@ -29,11 +29,15 @@ int correctPassword(char[21], char[21]);
 int accountNumExists(char[7]);
 int isDigitString(char*, int);
 int indexOfAccount(char[21]);
+struct Account getAccount(char[21]);
 
 void createAccount();
 void signIn();
 void closeAccount();
 void viewCustomerList();
+
+void accountMenu(struct Account);
+void printAccountInfo(struct Account);
 
 // Main function
 int main (void)
@@ -44,7 +48,7 @@ int main (void)
     // Statements
     numAccounts = 0;
     accounts = malloc(numAccounts * sizeof(struct Account));
-    char* mainMenuOptions = {"1. Create New Account\n2. Sign-in\n3. Close Account\n4. View customer list\n5. Exit"};
+    char* mainMenuOptions = "1. Create New Account\n2. Sign-in\n3. Close Account\n4. View customer list\n5. Exit";
     // Loop the main menu
     do
     {
@@ -53,7 +57,7 @@ int main (void)
         {
             case 1: createAccount();
                     break;
-            case 2: //signIn();
+            case 2: signIn();
                     break;
             case 3: closeAccount();
                     break;
@@ -177,6 +181,21 @@ int indexOfAccount(char username[21])
     return -1; // Should never happen, since this function will only call when the account does exist
 }
 
+// Return the account with the given username
+// Since this is only called when signing in, it is implied that the username does exist
+// So it can't ever NOT return an account
+struct Account getAccount(char username[21])
+{
+    // Statements
+    for (int i = 0; i < numAccounts; i++)
+    {
+        if (!strcmp(accounts[i].username, username)) // 0 means they match for some reason
+        {
+            return accounts[i];
+        }
+    }
+}
+
 // Handle the create account menu
 void createAccount()
 {
@@ -265,6 +284,52 @@ void createAccount()
     accounts[numAccounts - 1] = newAccount;
 }
 
+// Handle the sign in menu
+void signIn()
+{
+    // Local Declarations
+    char username[21];
+    char password[21];
+
+    // Statements
+    printMainHeader();
+    printf("--- Sign-in ---\n");
+
+    // Quick check for no existing account to even sign-in to
+    if (numAccounts < 1)
+    {
+        printf("No accounts registered yet.\n");
+        return;
+    }
+
+    // Ask for username
+    do
+    {
+        printf("Enter username -> ");
+        scanf("%19s", username);
+
+        if (!usernameExists(username))
+        {
+            printf("Username does not exist!\n");
+        }
+    } while (!usernameExists(username));
+
+    // Ask for password
+    do
+    {
+        printf("Enter password -> ");
+        scanf("%19s", password);
+
+        if (!correctPassword(username, password))
+        {
+            printf("Incorrect password!\n");
+        }
+    } while (!correctPassword(username, password));
+
+    // Now enter the account menu with the account we signed into
+    accountMenu(getAccount(username));
+}
+
 // Handle the close account menu
 void closeAccount()
 {
@@ -275,7 +340,6 @@ void closeAccount()
     char accountNum[7];
     int input;
     int index;
-    struct Account temp;
 
     // Statements
     printMainHeader();
@@ -351,4 +415,49 @@ void viewCustomerList()
     {
         printf("%d. %s\n", i + 1, accounts[i].username);
     }
+}
+
+// Handle the menu once you've signed in
+void accountMenu(struct Account account)
+{
+    // Local Declarations
+    int input;
+
+    // Statements
+    char* accountMenuOptions = "1. View Account Info\n2. Change Password\n3. Deposit\n4. Withdraw\n5. Sign-out";
+    char header[39] = "--- Account: ";
+    strcat(header, account.username);
+    strcat(header, " ---");
+    // Loop the account menu
+    do
+    {
+        input = promptInputNum(accountMenuOptions, 5, header);
+        switch (input)
+        {
+            case 1: printAccountInfo(account);
+                    break;
+            case 2: //
+                    break;
+            case 3: //
+                    break;
+            case 4: //
+                    break;
+        }
+    } while (input != 5); // Option 5 - Sign-out: exits this menu effectively signing out
+}
+
+// Print out all account information, including current balance
+void printAccountInfo(struct Account account)
+{
+    // TODO: Have dob/phoneNum print out with their own cool formats
+    // Statements
+    printMainHeader();
+    printf("ACCOUNT TYPE: %s\n", account.accountType);
+    printf("BALANCE: %ld\n", account.balance);
+    printf("\nUsername: %s\n", account.username);
+    printf("Password: %s\n", account.password);
+    printf("Account Number: %s\n", account.accountNum);
+    printf("Date-of-Birth: %s\n", account.dob);
+    printf("Phone Number: %s\n", account.phoneNum);
+    printf("Address: %s\n", account.address);
 }
